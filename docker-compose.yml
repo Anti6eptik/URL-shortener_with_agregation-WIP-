@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: ${PROJECT_NAME:-app}-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?err.POSTGRES_USER не задан}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err.POSTGRES_PASSWORD не задан}
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ${PROJECT_NAME:-app}-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:?err.PGADMIN_EMAIL не задан}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?err.PGADMIN_PASSWORD не задан}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+    name: ${PROJECT_NAME:-app}-postgres-data
+
+networks:
+  app-network:
+    name: ${PROJECT_NAME:-app}-network
