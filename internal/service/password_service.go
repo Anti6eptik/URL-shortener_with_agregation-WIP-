@@ -2,17 +2,18 @@ package service
 
 import (
 	"errors"
+	"goshop/internal/config"
 	"regexp"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type PasswordService struct {
-	cost int
+	config *config.Config
 }
 
-func NewPasswordService(cost int) *PasswordService {
-	return &PasswordService{cost: cost}
+func NewPasswordService(config *config.Config) *PasswordService {
+	return &PasswordService{config: config}
 }
 
 func (s *PasswordService) ValidatePassword(password string) error {
@@ -35,7 +36,7 @@ func (s *PasswordService) HashPassword(password string) (string, error) {
 		return "", err
 	}
 
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), s.cost)
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), s.config.BcryptCost)
 	if err != nil {
 		return "", errors.New("failed to hash password")
 	}

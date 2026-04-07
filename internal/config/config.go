@@ -4,54 +4,70 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
+	"time"
 )
 
 type Config struct {
 	Port        string
-	DatabaseURL string
-	BcryptCost  int
+	ReadTimeout time.Duration
+	WriteTimeot time.Duration
+	IdleTimeout time.Duration
+
+	DatabaseURL      string
+	DatabaseMaxConns int
+	DatabaseMinConns int
+
+	BcryptCost int
+
+	JWTSecret string
 }
 
 func Load() *Config {
-	_ = godotenv.Load()
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8081"
-	}
-
-	dbURL := os.Getenv("DATABASE_URL")
+	dbURL := getEnv("URLL", "")
 
 	if dbURL == "" {
-		host := os.Getenv("HOST")
-		if host == "" {
-			host = "localhost"
-		}
-
-		port := os.Getenv("POSTGRES_PORT")
-
-		user := os.Getenv("POSTGRES_USER")
-		password := os.Getenv("POSTGRES_PASSWORD")
-		dbName := os.Getenv("POSTGRES_DB")
-
-		sslmode := os.Getenv("POSTGRES_SSLMODE")
-		if sslmode == "" {
-			sslmode = "disable"
-		}
+		host := getEnv("HOST", "localhost")
+		port := getEnv("POSTGRES_PORT", "")
+		user := getEnv("POSTGRES_USER", "")
+		password := getEnv("POSTGRES_PASSWORD", "")
+		dbName := getEnv("POSTGRES_DB", "")
+		sslmode := getEnv("POSTGRES_SSLMODE", "disable")
 
 		dbURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 			user, password, host, port, dbName, sslmode)
 	}
-
-	cost, err := strconv.Atoi(os.Getenv("BCRYPT_COST"))
-	if err != nil {
-		cost = 12
-	}
+	fmt.Println(dbURL)
 	return &Config{
-		Port:        port,
-		DatabaseURL: dbURL,
-		BcryptCost:  cost,
+		Port:             getEnv("PORT", "8081"),
+		ReadTimeout:      getEnvAsDuration("READ_TIMEOUT", 10*time.Second),
+		WriteTimeot:      getEnvAsDuration("WRITE_TIMEOUT", 10*time.Second),
+		IdleTimeout:      getEnvAsDuration("IDLE_TIMEOUT", 60*time.Second),
+		DatabaseURL:      dbURL,
+		DatabaseMaxConns: getEnvAsInt("DB_MAX_CONNS", 20),
+		DatabaseMinConns: getEnvAsInt("DB_MIN_CONNS", 5),
+		BcryptCost:       getEnvAsInt("BCRYPT_COST", 12),
+		JWTSecret:        getEnv("JWT_SECRET", "default-secret"),
 	}
+}
+
+func getEnv(key string, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
+}
+
+func getEnvAsInt(key string, fallback int) int {
+	if value, err := strconv.Atoi(os.Getenv(key)); err == nil {
+		return value
+	}
+	return fallback
+}
+
+func getEnvAsDuration(key string, fallback time.Duration) time.Duration {
+	if value, err := time.ParseDuration(os.Getenv(key)); err == nil {
+		return value
+	}
+	return fallback
 }
