@@ -26,7 +26,7 @@ func (s *PasswordService) ValidatePassword(password string) error {
 	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
 
 	if !hasUpper || !hasLower || !hasNumber {
-		return errors.New("password must contain uppercase, lowercase and number")
+		return errors.New("password must contain uppercase, lowercase and a number")
 	}
 	return nil
 }

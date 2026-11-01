@@ -11,10 +11,10 @@ import (
 	"goshop/internal/config"
 	"goshop/internal/database"
 	"goshop/internal/handler"
-	"goshop/internal/repository/postgres"
+	repository "goshop/internal/repositories/postgres"
 	"goshop/internal/routes"
 	"goshop/internal/server"
-	"goshop/internal/service"
+	service "goshop/internal/services"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 	c.Provide(func() context.Context { return context.Background() })
 	c.Provide(database.NewPgxPool)
 	c.Provide(server.NewEcho)
-	c.Provide(postgres.NewUserRepository)
+	c.Provide(repository.NewUserRepository)
 	c.Provide(service.NewPasswordService)
 	c.Provide(service.NewUserService)
 	c.Provide(handler.NewUserHandler)

@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 	"goshop/internal/dto"
-	"goshop/internal/service"
+	"goshop/internal/services"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

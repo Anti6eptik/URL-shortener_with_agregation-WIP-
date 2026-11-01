@@ -2,7 +2,7 @@ package handler
 
 import (
 	"goshop/internal/dto"
-	"goshop/internal/service"
+	service "goshop/internal/services"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -10,16 +10,14 @@ import (
 
 type UserHandler struct {
 	UserService *service.UserService
-	//jwt service
 }
 
 func NewUserHandler(
 	UserService *service.UserService,
-	//jwt
+
 ) *UserHandler {
 	return &UserHandler{
 		UserService: UserService,
-		//jwt
 	}
 }
 
@@ -29,10 +27,12 @@ func (h *UserHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, BadRequestError)
 	}
 
-	user, err := h.UserService.Register(c.Request().Context(), req.Email, req.Password)
+	user, token, err := h.UserService.Register(c.Request().Context(), req.Email, req.Password)
 	if err != nil {
 		return h.HandleError(c, err)
 	}
+
+	SetAccessTokenCookie(c, token, h.UserService.TokenService.Cfg.AccessTokenExpiry)
 
 	return c.JSON(http.StatusCreated, dto.UserResponse{
 		ID:         user.ID,
@@ -48,10 +48,12 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, BadRequestError)
 	}
 
-	user, err := h.UserService.Login(c.Request().Context(), req.Email, req.Password)
+	user, token, err := h.UserService.Login(c.Request().Context(), req.Email, req.Password)
 	if err != nil {
 		return h.HandleError(c, err)
 	}
+
+	SetAccessTokenCookie(c, token, h.UserService.TokenService.Cfg.AccessTokenExpiry)
 
 	return c.JSON(http.StatusOK, dto.UserResponse{
 		ID:         user.ID,
@@ -66,10 +68,12 @@ func (h *UserHandler) ChangePassword(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, BadRequestError)
 	}
 
-	err := h.UserService.ChangePassword(c.Request().Context(), req.Email, req.Old_Password, req.New_Password)
+	token, err := h.UserService.ChangePassword(c.Request().Context(), req.Email, req.Old_Password, req.New_Password)
 	if err != nil {
 		return h.HandleError(c, err)
 	}
+
+	SetAccessTokenCookie(c, token, h.UserService.TokenService.Cfg.AccessTokenExpiry)
 
 	return c.NoContent(http.StatusNoContent)
 }

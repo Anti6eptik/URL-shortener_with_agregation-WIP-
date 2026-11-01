@@ -17,9 +17,9 @@ type Config struct {
 	DatabaseMaxConns int
 	DatabaseMinConns int
 
-	BcryptCost int
-
-	JWTSecret string
+	BcryptCost        int
+	AccessTokenExpiry time.Duration
+	JWTSecret         string
 }
 
 func Load() *Config {
@@ -39,15 +39,16 @@ func Load() *Config {
 	}
 	fmt.Println(dbURL)
 	return &Config{
-		Port:             getEnv("PORT", "8081"),
-		ReadTimeout:      getEnvAsDuration("READ_TIMEOUT", 10*time.Second),
-		WriteTimeot:      getEnvAsDuration("WRITE_TIMEOUT", 10*time.Second),
-		IdleTimeout:      getEnvAsDuration("IDLE_TIMEOUT", 60*time.Second),
-		DatabaseURL:      dbURL,
-		DatabaseMaxConns: getEnvAsInt("DB_MAX_CONNS", 20),
-		DatabaseMinConns: getEnvAsInt("DB_MIN_CONNS", 5),
-		BcryptCost:       getEnvAsInt("BCRYPT_COST", 12),
-		JWTSecret:        getEnv("JWT_SECRET", "default-secret"),
+		Port:              getEnv("PORT", "8081"),
+		ReadTimeout:       getEnvAsDuration("READ_TIMEOUT", 10*time.Second),
+		WriteTimeot:       getEnvAsDuration("WRITE_TIMEOUT", 10*time.Second),
+		IdleTimeout:       getEnvAsDuration("IDLE_TIMEOUT", 60*time.Second),
+		DatabaseURL:       dbURL,
+		DatabaseMaxConns:  getEnvAsInt("DB_MAX_CONNS", 20),
+		DatabaseMinConns:  getEnvAsInt("DB_MIN_CONNS", 5),
+		BcryptCost:        getEnvAsInt("BCRYPT_COST", 12),
+		JWTSecret:         getEnv("JWT_SECRET", "default-secret"),
+		AccessTokenExpiry: getEnvAsDuration("ACCESS_TOKEN_EXPIRY", 15*time.Minute),
 	}
 }
 
