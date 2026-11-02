@@ -11,6 +11,7 @@ import (
 	"goshop/internal/config"
 	"goshop/internal/database"
 	"goshop/internal/handler"
+	"goshop/internal/middleware"
 	repository "goshop/internal/repositories/postgres"
 	"goshop/internal/routes"
 	"goshop/internal/server"
@@ -31,6 +32,8 @@ func main() {
 	c.Provide(repository.NewUserRepository)
 	c.Provide(service.NewPasswordService)
 	c.Provide(service.NewUserService)
+	c.Provide(service.NewTokenService)
+	c.Provide(middleware.NewAuthMiddleware)
 	c.Provide(handler.NewUserHandler)
 	c.Provide(handler.NewHealthHandler)
 	c.Provide(server.NewServer)
@@ -46,8 +49,9 @@ func startServer(
 	e *echo.Echo,
 	userHandler *handler.UserHandler,
 	healthHandler *handler.HealthHandler,
+	authMiddleware *middleware.AuthMiddleware,
 	cfg *config.Config,
 ) error {
-	routes.Register(e, userHandler, healthHandler)
+	routes.Register(e, userHandler, healthHandler, authMiddleware)
 	return srv.Start()
 }

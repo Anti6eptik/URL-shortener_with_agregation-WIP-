@@ -52,15 +52,15 @@ func (s *TokenService) NewUserClaims(userID int, email string, role string, expi
 func (s *TokenService) GenerateAccessToken(user *domain.User) (string, error) {
 	claims := s.NewUserClaims(user.ID, user.Email, user.Role, s.Cfg.AccessTokenExpiry)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(s.Cfg.JWTSecret)
+	return token.SignedString([]byte(s.Cfg.JWTSecret))
 }
 
-func (s *TokenService) ValidateAccessToken(tokenSting string) (*UserClaims, error) {
+func (s *TokenService) ValidateAccessToken(tokenString string) (*UserClaims, error) {
 	claims := &UserClaims{}
 
-	token, err := jwt.ParseWithClaims(tokenSting, claims, func(token *jwt.Token) (any, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexoected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(s.Cfg.JWTSecret), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), jwt.WithIssuedAt(), jwt.WithIssuer("goshop"))

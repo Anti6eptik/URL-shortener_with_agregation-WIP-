@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Register(e *echo.Echo, userHandler *handler.UserHandler, healthHandler *handler.HealthHandler) {
+func Register(e *echo.Echo, userHandler *handler.UserHandler, healthHandler *handler.HealthHandler, authMiddleware *middleware.AuthMiddleware) {
 	e.GET("/health", healthHandler.Check)
 	e.GET("/ready", healthHandler.Ready)
 
@@ -15,9 +15,12 @@ func Register(e *echo.Echo, userHandler *handler.UserHandler, healthHandler *han
 
 	api.POST("/register", userHandler.Register)
 	api.POST("/login", userHandler.Login)
-	api.PUT("/change_password", userHandler.ChangePassword)
 
-	adminGroup := api.Group("/admin", middleware.RequireRole("admin"))
+	authed := api.Group("/authed", authMiddleware.Auth)
+
+	authed.PUT("/change_password", userHandler.ChangePassword)
+
+	adminGroup := authed.Group("/admin", middleware.RequireRole("admin"))
 	adminGroup.GET("/users", userHandler.GetAll)
 	adminGroup.DELETE("/delete/:id", userHandler.Delete)
 }

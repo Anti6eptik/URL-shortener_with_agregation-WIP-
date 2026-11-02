@@ -23,10 +23,10 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	query := `
 		INSERT INTO users (email, password_hash, created_at, updated_at)
 		VALUES ($1, $2, NOW(), NOW())
-		RETURNING id, created_at
+		RETURNING id, created_at, role
 	`
 
-	err := r.pool.QueryRow(ctx, query, user.Email, user.Password_hash).Scan(&user.ID, &user.Created_at)
+	err := r.pool.QueryRow(ctx, query, user.Email, user.Password_hash).Scan(&user.ID, &user.Created_at, &user.Role)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -52,11 +52,11 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 }
 
 func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	query := `SELECT id, email, password_hash, created_at, updated_at FROM users WHERE email = $1`
+	query := `SELECT id, email, password_hash, created_at, updated_at, role FROM users WHERE email = $1`
 
 	var user domain.User
 
-	err := r.pool.QueryRow(ctx, query, email).Scan(&user.ID, &user.Email, &user.Password_hash, &user.Created_at, &user.Updated_at)
+	err := r.pool.QueryRow(ctx, query, email).Scan(&user.ID, &user.Email, &user.Password_hash, &user.Created_at, &user.Updated_at, &user.Role)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.NewUserError("get", domain.ErrUserNotFound, nil)
@@ -68,11 +68,11 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 }
 
 func (r *UserRepository) GetByID(ctx context.Context, id int) (*domain.User, error) {
-	query := `SELECT id, email, password_hash, created_at, updated_at FROM users WHERE id = $1`
+	query := `SELECT id, email, password_hash, created_at, updated_at, role FROM users WHERE id = $1`
 
 	var user domain.User
 
-	err := r.pool.QueryRow(ctx, query, id).Scan(&user.ID, &user.Email, &user.Password_hash, &user.Created_at, &user.Updated_at)
+	err := r.pool.QueryRow(ctx, query, id).Scan(&user.ID, &user.Email, &user.Password_hash, &user.Created_at, &user.Updated_at, &user.Role)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.NewUserError("get", domain.ErrUserNotFound, nil)
@@ -102,7 +102,7 @@ func (r *UserRepository) UpdateByEmail(ctx context.Context, user *domain.User) e
 
 func (r *UserRepository) GetAll(ctx context.Context, limit int, offset int) ([]domain.User, error) {
 	query := `
-	SELECT id, email, created_at, updated_at
+	SELECT id, email, created_at, updated_at, role
 	FROM users
 	ORDER BY id
 	LIMIT $1
@@ -117,7 +117,7 @@ func (r *UserRepository) GetAll(ctx context.Context, limit int, offset int) ([]d
 	users := make([]domain.User, 0)
 	for rows.Next() {
 		var user domain.User
-		err := rows.Scan(&user.ID, &user.Email, &user.Created_at, &user.Updated_at)
+		err := rows.Scan(&user.ID, &user.Email, &user.Created_at, &user.Updated_at, &user.Role)
 		if err != nil {
 			return nil, domain.NewUserError("get", domain.ErrDatabaseError, err)
 		}
