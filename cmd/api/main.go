@@ -8,14 +8,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/dig"
 
-	"goshop/internal/config"
-	"goshop/internal/database"
-	"goshop/internal/handler"
-	"goshop/internal/middleware"
-	repository "goshop/internal/repositories/postgres"
-	"goshop/internal/routes"
-	"goshop/internal/server"
-	service "goshop/internal/services"
+	"url-shortener/internal/config"
+	"url-shortener/internal/database"
+	"url-shortener/internal/handler"
+	"url-shortener/internal/middleware"
+	repository "url-shortener/internal/repositories/postgres"
+	"url-shortener/internal/routes"
+	"url-shortener/internal/server"
+	service "url-shortener/internal/services"
 )
 
 func main() {

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"goshop/internal/config"
+	"url-shortener/internal/config"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

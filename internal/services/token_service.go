@@ -4,8 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"goshop/internal/config"
-	"goshop/internal/domain"
+	"url-shortener/internal/config"
+	"url-shortener/internal/domain"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

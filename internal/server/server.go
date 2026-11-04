@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"goshop/internal/config"
+	"url-shortener/internal/config"
 	"os"
 	"os/signal"
 	"syscall"

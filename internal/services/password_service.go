@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"goshop/internal/config"
+	"url-shortener/internal/config"
 	"regexp"
 
 	"golang.org/x/crypto/bcrypt"
