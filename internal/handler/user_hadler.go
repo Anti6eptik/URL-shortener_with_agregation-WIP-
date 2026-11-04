@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"net/http"
 	"url-shortener/internal/dto"
 	service "url-shortener/internal/services"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
@@ -88,11 +88,14 @@ func (h *UserHandler) GetAll(c echo.Context) error {
 	if err != nil {
 		return h.HandleError(c, err)
 	}
-
+	page := req.Page
+	if page < 1 {
+		page = 1
+	}
 	return c.JSON(http.StatusOK, dto.GetAllResponse{
 		Users:      users,
 		Total:      total,
-		Page:       req.Page,
+		Page:       page,
 		TotalPages: totalPages,
 	})
 }
