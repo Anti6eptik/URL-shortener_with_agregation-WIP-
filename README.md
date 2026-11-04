@@ -1,4 +1,6 @@
 # URL Shortener with Aggregation (WIP)
+![Go Version](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 A backend service for shortening URLs and aggregating click statistics, written in Go.
 
@@ -226,11 +228,20 @@ Response:
   "users": [
     {
       "id": 1,
+      "email": "admin@example.com",
+      "role": "admin",
+      "created_at": "2026-01-01T12:00:00Z",
+      "updated_at": "2026-01-01T12:00:00Z"
+    },
+    {
+      "id": 2,
       "email": "user@example.com",
-      "created_at": "2026-01-01T12:00:00Z"
+      "role": "user",
+      "created_at": "2026-01-01T12:00:00Z",
+      "updated_at": "2026-01-01T12:00:00Z"
     }
   ],
-  "total": 1,
+  "total": 2,
   "page": 1,
   "total_pages": 1
 }
