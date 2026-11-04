@@ -2,8 +2,8 @@ package handler
 
 import (
 	"errors"
-	"goshop/internal/dto"
-	"goshop/internal/services"
+	"url-shortener/internal/dto"
+	"url-shortener/internal/services"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

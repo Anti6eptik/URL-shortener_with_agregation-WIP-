@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"errors"
-	"goshop/internal/domain"
-	repository "goshop/internal/repositories/postgres"
+	"url-shortener/internal/domain"
+	repository "url-shortener/internal/repositories/postgres"
 )
 
 type UserService struct {

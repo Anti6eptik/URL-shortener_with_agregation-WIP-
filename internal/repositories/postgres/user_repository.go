@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
-	"goshop/internal/domain"
+	"url-shortener/internal/domain"
 	"strings"
 
 	"github.com/jackc/pgx/v5"

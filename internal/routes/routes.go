@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"goshop/internal/handler"
-	"goshop/internal/middleware"
+	"url-shortener/internal/handler"
+	"url-shortener/internal/middleware"
 
 	"github.com/labstack/echo/v4"
 )

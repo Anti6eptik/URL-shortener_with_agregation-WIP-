@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"goshop/internal/handler"
-	service "goshop/internal/services"
+	"url-shortener/internal/handler"
+	service "url-shortener/internal/services"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

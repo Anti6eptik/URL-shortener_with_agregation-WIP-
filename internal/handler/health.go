@@ -18,16 +18,16 @@ func NewHealthHandler() *HealthHandler {
 }
 
 func (h *HealthHandler) Check(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{"status":"alive"})
+	return c.JSON(http.StatusOK, map[string]string{"status": "alive"})
 }
 
-func (h *HealthHandler) Ready(c echo.Context) error{
-	if h.ready.Load().(bool){
-		return c.JSON(http.StatusOK, map[string]string{"status":"ready"})
+func (h *HealthHandler) Ready(c echo.Context) error {
+	if h.ready.Load().(bool) {
+		return c.JSON(http.StatusOK, map[string]string{"status": "ready"})
 	}
-	return c.JSON(http.StatusServiceUnavailable,map[string]string{"status":"not ready"})
+	return c.JSON(http.StatusServiceUnavailable, map[string]string{"status": "not ready"})
 }
 
-func (h *HealthHandler) SetReady(ready bool){
+func (h *HealthHandler) SetReady(ready bool) {
 	h.ready.Store(ready)
 }

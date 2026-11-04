@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"goshop/internal/domain"
+	"url-shortener/internal/domain"
 	"time"
 )
 

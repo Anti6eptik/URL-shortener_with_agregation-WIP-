@@ -3,8 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
-	"goshop/internal/config"
 	"time"
+	"url-shortener/internal/config"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
