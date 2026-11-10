@@ -28,7 +28,7 @@ func NewUserService(
 func (s *UserService) Login(ctx context.Context, email string, password string) (*domain.User, string, error) {
 	user, err := s.UserRepository.GetByEmail(ctx, email)
 	if err != nil {
-		var repoErr *domain.UserError
+		var repoErr *domain.CustomError
 		if errors.As(err, &repoErr) && errors.Is(repoErr.Err, domain.ErrUserNotFound) {
 			return nil, "", NewUnauthorizedError("invalid credentials", nil)
 		}
@@ -68,12 +68,12 @@ func (s *UserService) Register(ctx context.Context, email string, password strin
 
 	err = s.UserRepository.Create(ctx, user)
 	if err != nil {
-		var repoErr *domain.UserError
+		var repoErr *domain.CustomError
 		if errors.As(err, &repoErr) {
 			switch repoErr.Err {
 			case domain.ErrDuplicateEmail:
 				return nil, "", NewConflictError("email already exists", repoErr.Details)
-			case domain.ErrInvalidUserData:
+			case domain.ErrInvalidData:
 				return nil, "", NewBadRequestError("invalid user data", repoErr.Details)
 			case domain.ErrDatabaseError:
 				return nil, "", NewInternalError("database error", repoErr.Details)
@@ -94,7 +94,7 @@ func (s *UserService) Register(ctx context.Context, email string, password strin
 func (s *UserService) ChangePassword(ctx context.Context, email string, old_password string, new_password string) (string, error) {
 	user, err := s.UserRepository.GetByEmail(ctx, email)
 	if err != nil {
-		var repoErr *domain.UserError
+		var repoErr *domain.CustomError
 		if errors.As(err, &repoErr) && errors.Is(repoErr.Err, domain.ErrUserNotFound) {
 			return "", NewUnauthorizedError("invalid credentials", nil)
 		}
@@ -118,7 +118,7 @@ func (s *UserService) ChangePassword(ctx context.Context, email string, old_pass
 
 	err = s.UserRepository.UpdateByEmail(ctx, user)
 	if err != nil {
-		var repoErr *domain.UserError
+		var repoErr *domain.CustomError
 		if errors.As(err, &repoErr) {
 			return "", NewInternalError("database error", repoErr.Details)
 		}
@@ -164,7 +164,7 @@ func (s *UserService) GetAll(ctx context.Context, page int, limit int) ([]domain
 func (s *UserService) Delete(ctx context.Context, id int) error {
 	err := s.UserRepository.DeleteById(ctx, id)
 	if err != nil {
-		var repoErr *domain.UserError
+		var repoErr *domain.CustomError
 		if errors.As(err, &repoErr) {
 			switch repoErr.Err {
 			case domain.ErrDeleteReferenced:

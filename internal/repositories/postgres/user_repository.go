@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	"url-shortener/internal/domain"
 	"strings"
+	"url-shortener/internal/domain"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -34,19 +34,14 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 			switch pgErr.Code {
 			case "23505": //unique violaction
 				if strings.Contains(pgErr.Message, "email") {
-					return domain.NewUserError("create", domain.ErrDuplicateEmail, pgErr)
+					return domain.NewCustomError("create", domain.ErrDuplicateEmail, pgErr)
 				}
-				return domain.NewUserError("create", domain.ErrInvalidUserData, pgErr)
-
-			case "23503": //foreign key violation
-				return domain.NewUserError("create", domain.ErrInvalidUserData, pgErr)
-			case "23514": //check violation
-				return domain.NewUserError("create", domain.ErrInvalidUserData, pgErr)
+				return domain.NewCustomError("create", domain.ErrInvalidData, pgErr)
 			default:
-				return domain.NewUserError("create", domain.ErrDatabaseError, pgErr)
+				return domain.NewCustomError("create", domain.ErrDatabaseError, pgErr)
 			}
 		}
-		return domain.NewUserError("create", domain.ErrUnexpectedError, err)
+		return domain.NewCustomError("create", domain.ErrUnexpectedError, err)
 	}
 	return nil
 }
@@ -59,9 +54,9 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	err := r.pool.QueryRow(ctx, query, email).Scan(&user.ID, &user.Email, &user.Password_hash, &user.Created_at, &user.Updated_at, &user.Role)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.NewUserError("get", domain.ErrUserNotFound, nil)
+			return nil, domain.NewCustomError("get", domain.ErrUserNotFound, nil)
 		}
-		return nil, domain.NewUserError("get", domain.ErrDatabaseError, err)
+		return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
 	}
 
 	return &user, nil
@@ -75,9 +70,9 @@ func (r *UserRepository) GetByID(ctx context.Context, id int) (*domain.User, err
 	err := r.pool.QueryRow(ctx, query, id).Scan(&user.ID, &user.Email, &user.Password_hash, &user.Created_at, &user.Updated_at, &user.Role)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.NewUserError("get", domain.ErrUserNotFound, nil)
+			return nil, domain.NewCustomError("get", domain.ErrUserNotFound, nil)
 		}
-		return nil, domain.NewUserError("get", domain.ErrDatabaseError, err)
+		return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
 	}
 
 	return &user, nil
@@ -93,9 +88,9 @@ func (r *UserRepository) UpdateByEmail(ctx context.Context, user *domain.User) e
 	err := r.pool.QueryRow(ctx, query, user.Password_hash, user.Email).Scan(&user.Updated_at)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.NewUserError("put", domain.ErrUserNotFound, nil)
+			return domain.NewCustomError("put", domain.ErrUserNotFound, nil)
 		}
-		return domain.NewUserError("put", domain.ErrDatabaseError, err)
+		return domain.NewCustomError("put", domain.ErrDatabaseError, err)
 	}
 	return nil
 }
@@ -110,7 +105,7 @@ func (r *UserRepository) GetAll(ctx context.Context, limit int, offset int) ([]d
 
 	rows, err := r.pool.Query(ctx, query, limit, offset)
 	if err != nil {
-		return nil, domain.NewUserError("get", domain.ErrDatabaseError, err)
+		return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
 	}
 	defer rows.Close()
 
@@ -119,11 +114,11 @@ func (r *UserRepository) GetAll(ctx context.Context, limit int, offset int) ([]d
 		var user domain.User
 		err := rows.Scan(&user.ID, &user.Email, &user.Created_at, &user.Updated_at, &user.Role)
 		if err != nil {
-			return nil, domain.NewUserError("get", domain.ErrDatabaseError, err)
+			return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
 		}
 		users = append(users, user)
 		if err = rows.Err(); err != nil {
-			return nil, domain.NewUserError("get", domain.ErrDatabaseError, err)
+			return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
 		}
 	}
 	return users, nil
@@ -134,7 +129,7 @@ func (r *UserRepository) GetTotalCount(ctx context.Context) (int, error) {
 	var count int
 	err := r.pool.QueryRow(ctx, query).Scan(&count)
 	if err != nil {
-		return -1, domain.NewUserError("get", domain.ErrDatabaseError, err)
+		return -1, domain.NewCustomError("get", domain.ErrDatabaseError, err)
 	}
 	return count, nil
 }
@@ -147,16 +142,16 @@ func (r *UserRepository) DeleteById(ctx context.Context, id int) error {
 		if errors.As(err, &pgErr) {
 			switch pgErr.Code {
 			case "23503": //foreign key violation
-				return domain.NewUserError("delete", domain.ErrDeleteReferenced, pgErr)
+				return domain.NewCustomError("delete", domain.ErrDeleteReferenced, pgErr)
 			default:
-				return domain.NewUserError("delete", domain.ErrDatabaseError, pgErr)
+				return domain.NewCustomError("delete", domain.ErrDatabaseError, pgErr)
 			}
 		}
-		return domain.NewUserError("delete", domain.ErrUnexpectedError, err)
+		return domain.NewCustomError("delete", domain.ErrUnexpectedError, err)
 	}
 
 	if cmdTag.RowsAffected() == 0 {
-		return domain.NewUserError("delete", domain.ErrUserNotFound, nil)
+		return domain.NewCustomError("delete", domain.ErrUserNotFound, nil)
 	}
 	return nil
 }
