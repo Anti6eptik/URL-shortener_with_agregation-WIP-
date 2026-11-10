@@ -7,6 +7,7 @@ import (
 
 var (
 	ErrUserNotFound       = errors.New("user not found")
+	ErrLinkNotFound       = errors.New("link not found")
 	ErrDuplicateEmail     = errors.New("duplicate email")
 	ErrDuplicateShortCode = errors.New("duplicate short code")
 	ErrInvalidData        = errors.New("invalid user data")

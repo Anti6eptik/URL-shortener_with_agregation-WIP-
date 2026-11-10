@@ -2,7 +2,7 @@ CREATE TABLE short_links (
     id SERIAL PRIMARY KEY,
     short_code VARCHAR(16) NOT NULL UNIQUE,
     original_url TEXT NOT NULL,
-    user_id INT NOT NULL REFERENCES users(id),
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     expires_at TIMESTAMPTZ
 );

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"url-shortener/internal/domain"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -22,8 +23,7 @@ func (r *ShortLinkRepository) Create(ctx context.Context, shortlink *domain.Shor
 	query := `
 		INSERT INTO short_links (short_code, original_url, user_id, created_at, expires_at)
 		VALUES ($1, $2, $3, NOW(), $4)
-		RETURNING id, created_at 
-	`
+		RETURNING id, created_at`
 
 	err := r.pool.QueryRow(ctx, query, shortlink.Short_code, shortlink.Original_URL, shortlink.User_ID, shortlink.Expires_at).Scan(&shortlink.ID, &shortlink.Created_at)
 
@@ -45,4 +45,48 @@ func (r *ShortLinkRepository) Create(ctx context.Context, shortlink *domain.Shor
 		return domain.NewCustomError("create", domain.ErrUnexpectedError, err)
 	}
 	return nil
+}
+
+func (r *ShortLinkRepository) GetByCode(ctx context.Context, shortcode string) (*domain.Short_Link, error) {
+	query := `SELECT id, short_code, original_url, user_id, created_at, expires_at FROM short_links WHERE short_code = $1`
+
+	var link domain.Short_Link
+
+	err := r.pool.QueryRow(ctx, query, shortcode).Scan(&link.ID, &link.Short_code, &link.Original_URL, &link.User_ID, &link.Created_at, &link.Expires_at)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.NewCustomError("get", domain.ErrLinkNotFound, nil)
+		}
+		return nil, domain.NewCustomError("get", domain.ErrUnexpectedError, err)
+	}
+
+	return &link, nil
+}
+
+func (r *ShortLinkRepository) ListByUser(ctx context.Context, userID int) ([]domain.Short_Link, error) {
+	query := `
+	SELECT id, short_code, original_url, user_id, created_at, expires_at
+	FROM short_links
+	WHERE user_id = $1
+	ORDER BY created_at`
+
+	rows, err := r.pool.Query(ctx, query, userID)
+	if err != nil {
+		return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
+	}
+	defer rows.Close()
+
+	links := make([]domain.Short_Link, 0)
+	for rows.Next() {
+		var link domain.Short_Link
+		err := rows.Scan(&link.ID, &link.Short_code, &link.Original_URL, &link.User_ID, &link.Created_at, &link.Expires_at)
+		if err != nil {
+			return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
+		}
+		links = append(links, link)
+		if err = rows.Err(); err != nil {
+			return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
+		}
+	}
+	return links, nil
 }
