@@ -57,7 +57,7 @@ func (r *ShortLinkRepository) GetByCode(ctx context.Context, shortcode string) (
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.NewCustomError("get", domain.ErrLinkNotFound, nil)
 		}
-		return nil, domain.NewCustomError("get", domain.ErrUnexpectedError, err)
+		return nil, domain.NewCustomError("get", domain.ErrDatabaseError, err)
 	}
 
 	return &link, nil
