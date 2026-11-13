@@ -87,12 +87,18 @@ cp .env.example .env
 * `BCRYPT_COST` (recommended 12–14)
 
 * `ACCESS_TOKEN_EXPIRY`
+  
+* `POSTGRES_PORT`
+
+* `PGADMIN_PORT`
+
+* `PORT`
 
 ### 3. Start infrastructure
 ```
 docker compose up -d
 ```
-  This starts PostgreSQL and pgAdmin. pgAdmin will be available on the port specified by `PGADMIN_PORT` (default `5050`).
+  This starts PostgreSQL and pgAdmin. pgAdmin will be available on the port specified by `PGADMIN_PORT`.
 
 ### 4. Run migrations
 Apply the SQL files from `migrations/` to your PostgreSQL instance (via pgAdmin, `psql`, or your preferred migration tool).
@@ -123,7 +129,8 @@ The API uses **JWT access tokens delivered as cookies**.
 
 > **Security notes:** `HttpOnly` + `SameSite=Strict` + `Secure` covers the most common cookie-based auth risks (XSS token theft and CSRF). Planned hardening: refresh tokens with rotation and an explicit CSRF token for state-changing endpoints.
 ## API Reference
-Base URL: `http://localhost:8080`
+Base URL: `http://localhost:PORT`
+where PORT is the `PORT` you specified in .env
 
 ### Service
 `GET /health` — liveness probe (public)
